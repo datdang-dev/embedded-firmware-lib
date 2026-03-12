@@ -1,0 +1,91 @@
+name: Embedded HSM CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-host:
+    name: Build HOST (Linux)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -DTARGET_PLATFORM=HOST -B build
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
+
+  build-embedded:
+    name: Build EMBEDDED (Linux)
+    runs-on: ubuntu-latest
+    # Skip if no toolchain file exists
+    if: hashFiles('toolchain.cmake') != ''
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -DTARGET_PLATFORM=EMBEDDED -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake -B build
+
+      - name: Build
+        run: cmake --build build
+
+  static-analysis:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install clang-tidy
+        run: sudo apt-get install -y clang-tidy
+
+      - name: Configure CMake
+        run: cmake -DTARGET_PLATFORM=HOST -B build
+
+      - name: Run clang-tidy
+        run: |
+          cd build
+          clang-tidy -quiet -format clang ../src/**/*.c 2>/dev/null || true
+
+  code-coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install gcovr
+        run: pip install gcovr
+
+      - name: Configure with coverage
+        run: cmake -DTARGET_PLATFORM=HOST -DENABLE_COVERAGE=ON -B build
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Generate coverage report
+        run: |
+          cd build
+          gcovr --html --html-details coverage.html ../src/ || true
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: build/coverage.html

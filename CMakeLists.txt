@@ -1,127 +1,141 @@
 # =============================================================================
-# Embedded HSM Firmware - Root CMakeLists.txt
-# =============================================================================
-# Enterprise-grade build system for Hardware Security Module firmware.
-# Supports HOST (PC debugging with GDB) and EMBEDDED targets.
-#
-# Naming Convention: ehsm_<module>_camelCase()
-#
-# Build Examples:
-#   HOST:   cmake -DTARGET_PLATFORM=HOST -B build && cmake --build build
-#   EMBEDDED: cmake -DTARGET_PLATFORM=EMBEDDED -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake -B build
-#
-# Targets:
-#   ehsm_firmware   - Main firmware library
-#   ehsm_host       - Host executable for testing
-#   docs            - Generate Doxygen documentation
-#   test            - Run unit tests (CTest)
+# Embedded HSM Firmware - CMakeLists.txt (C++ Version)
 # =============================================================================
 
 cmake_minimum_required(VERSION 3.20)
 
-project(embedded_hsm
+project(embedded_hsm_cpp
     VERSION 1.0.0
-    DESCRIPTION "Embedded Hardware Security Module Firmware"
-    LANGUAGES C
+    DESCRIPTION "Embedded HSM Firmware - C++ Implementation"
+    LANGUAGES C CXX
 )
 
-# Enforce out-of-source builds
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
-    message(FATAL_ERROR "Out-of-source builds required. Create a build directory.")
-endif()
+# C++17 standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Set C standard (C11 for embedded compatibility)
+# C standard for MCAL
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS OFF)
 
-# =============================================================================
-# Include CMake Modules
-# =============================================================================
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-
-include(CompilerWarnings)
-include(PlatformConfig)
-include(Doxygen)
-include(CTest)
-
-# =============================================================================
-# Configure Compiler Warnings
-# =============================================================================
-set_project_warnings(${PROJECT_NAME})
-
-# Add platform-specific flags
-if(DEFINED PLATFORM_C_FLAGS)
-    add_compile_options(${PLATFORM_C_FLAGS})
+# Out-of-source builds
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+    message(FATAL_ERROR "Out-of-source builds required.")
 endif()
 
-if(DEFINED PLATFORM_LINK_FLAGS)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${PLATFORM_LINK_FLAGS}")
+# Platform selection
+set(TARGET_PLATFORM "HOST" CACHE STRING "Target platform: HOST or EMBEDDED")
+set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS HOST EMBEDDED)
+
+# Compiler warnings
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Werror")
+
+# Platform-specific flags
+if(TARGET_PLATFORM STREQUAL "HOST")
+    message(STATUS "Configuring for HOST platform")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
+    add_compile_definitions(TARGET_PLATFORM_HOST)
+else()
+    message(STATUS "Configuring for EMBEDDED platform")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Os")
+    add_compile_definitions(TARGET_PLATFORM_EMBEDDED)
 endif()
 
-# =============================================================================
-# Global Include Directories
-# =============================================================================
+# Include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # =============================================================================
-# Add Subdirectories (Layer-based Architecture)
+# Source Files
 # =============================================================================
 
-# MCAL Layer - Microcontroller Abstraction
-add_subdirectory(src/mcal)
+# Types
+set(TYPES_SOURCES
+    src/types/status.cpp
+)
 
-# Driver Layer - Hardware Drivers
-add_subdirectory(src/drivers)
+# Middleware
+set(MIDDLEWARE_SOURCES
+    src/middleware/session_manager.cpp
+)
 
-# Service Layer - Core Business Logic
-add_subdirectory(src/services)
+# Services
+set(SERVICES_SOURCES
+    src/services/crypto/crypto_service.cpp
+    src/services/crypto/aes128_algorithm.cpp
+    src/services/crypto/aes256_algorithm.cpp
+    src/services/keystore_service.cpp
+)
 
-# Middleware Layer - Job Router & Session Management
-add_subdirectory(src/middleware)
+# API
+set(API_SOURCES
+    src/api/hsm_api_impl.cpp
+)
 
-# API Layer - Public Interfaces
-add_subdirectory(src/api)
-
-# =============================================================================
-# Host Executable (for PC debugging)
-# =============================================================================
+# MCAL (C code)
 if(TARGET_PLATFORM STREQUAL "HOST")
-    add_executable(ehsm_host
-        main.c
+    set(MCAL_SOURCES
+        src/mcal/uart/mcal_uart_stub.c
     )
-    
+    message(STATUS "MCAL: Using UART stub for HOST")
+else()
+    set(MCAL_SOURCES
+        src/mcal/uart/mcal_uart_real.c
+    )
+    message(STATUS "MCAL: Using real UART driver for EMBEDDED")
+endif()
+
+# =============================================================================
+# Libraries
+# =============================================================================
+
+# MCAL library (C)
+add_library(ehsm_mcal STATIC ${MCAL_SOURCES})
+target_include_directories(ehsm_mcal PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
+# Services library
+add_library(ehsm_services STATIC ${SERVICES_SOURCES})
+target_include_directories(ehsm_services PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(ehsm_services PUBLIC ehsm_mcal)
+
+# Middleware library
+add_library(ehsm_middleware STATIC ${MIDDLEWARE_SOURCES})
+target_include_directories(ehsm_middleware PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(ehsm_middleware PUBLIC ehsm_services)
+
+# API library
+add_library(ehsm_api STATIC ${API_SOURCES} ${TYPES_SOURCES})
+target_include_directories(ehsm_api PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(ehsm_api PUBLIC ehsm_middleware)
+
+# =============================================================================
+# Host Executable
+# =============================================================================
+
+if(TARGET_PLATFORM STREQUAL "HOST")
+    add_executable(ehsm_host main.cpp)
     target_link_libraries(ehsm_host PRIVATE
         ehsm_api
         ehsm_middleware
         ehsm_services
-        ehsm_drivers
         ehsm_mcal
     )
-    
     message(STATUS "Host executable 'ehsm_host' configured")
 endif()
 
 # =============================================================================
-# Unit Tests
+# Summary
 # =============================================================================
-if(BUILD_TESTING AND TARGET_PLATFORM STREQUAL "HOST")
-    add_subdirectory(tests)
-endif()
 
-# =============================================================================
-# Print Configuration Summary
-# =============================================================================
 message(STATUS "")
-message(STATUS "=== Embedded HSM Configuration Summary ===")
-message(STATUS "  Version:        ${PROJECT_VERSION}")
-message(STATUS "  Platform:       ${TARGET_PLATFORM}")
-message(STATUS "  C Compiler:     ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
-message(STATUS "  C Standard:     C${CMAKE_C_STANDARD}")
-message(STATUS "  Build Type:     ${CMAKE_BUILD_TYPE}")
-message(STATUS "  Warnings:       ${WARNINGS_AS_ERRORS}")
-message(STATUS "  Documentation:  ${BUILD_DOCS}")
-message(STATUS "  Testing:        ${BUILD_TESTING}")
-message(STATUS "  Naming Conv:    ehsm_<module>_camelCase()")
-message(STATUS "==========================================")
+message(STATUS "=== Embedded HSM C++ Configuration ===")
+message(STATUS "  Version:      ${PROJECT_VERSION}")
+message(STATUS "  Platform:     ${TARGET_PLATFORM}")
+message(STATUS "  C++ Standard: C++${CMAKE_CXX_STANDARD}")
+message(STATUS "  C Standard:   C${CMAKE_C_STANDARD}")
+message(STATUS "  Build Type:   ${CMAKE_BUILD_TYPE}")
+message(STATUS "======================================")
 message(STATUS "")
