@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include "ehsm/api/ihsm_api.hpp"
-#include "ehsm/services/icrypto_service.hpp"
-#include "ehsm/services/ikeystore_service.hpp"
+#include "ihsm_api.hpp"
+#include "icrypto_service.hpp"
+#include "ikeystore_service.hpp"
 #include <memory>
 
 namespace ehsm::mw {

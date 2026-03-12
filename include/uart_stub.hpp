@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "ehsm/mcal/iuart.hpp"
+#include "iuart.hpp"
 #include <cstdint>
 
 extern "C" {

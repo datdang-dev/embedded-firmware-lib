@@ -6,9 +6,9 @@
  * @license MIT License
  */
 
-#include "ehsm/services/crypto/crypto_service.hpp"
-#include "ehsm/services/ikeystore_service.hpp"
-#include "ehsm/services/crypto/icrypto_algorithm.hpp"
+#include "crypto_service.hpp"
+#include "ikeystore_service.hpp"
+#include "icrypto_algorithm.hpp"
 
 namespace ehsm::services {
 

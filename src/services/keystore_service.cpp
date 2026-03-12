@@ -6,7 +6,8 @@
  * @license MIT License
  */
 
-#include "ehsm/services/keystore_service.hpp"
+#include "common.hpp"
+#include "keystore_service.hpp"
 #include <cstring>
 
 namespace ehsm::services {
@@ -33,7 +34,7 @@ Status KeystoreService::deinit() {
     }
 
     // Clear all keys securely
-    clearAll();
+    (void)clearAll();
     isInitialized_ = false;
     return Status(types::StatusCode::OK);
 }

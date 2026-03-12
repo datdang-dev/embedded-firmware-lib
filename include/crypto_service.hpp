@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include "ehsm/services/icrypto_service.hpp"
-#include "ehsm/services/crypto/icrypto_algorithm.hpp"
-#include <memory>
-#include <span>
+#include "common.hpp"
+#include "icrypto_service.hpp"
+#include "ikeystore_service.hpp"
+#include "icrypto_algorithm.hpp"
 
 namespace ehsm::services {
 
@@ -80,8 +80,8 @@ public:
     [[nodiscard]] types::Algorithm getAlgorithmType() const;
 
 private:
-    std::unique_ptr<ICryptoAlgorithm> algorithm_;   ///< Algorithm strategy
     std::shared_ptr<IKeystoreService> keystore_;    ///< Keystore dependency
+    std::unique_ptr<ICryptoAlgorithm> algorithm_;   ///< Algorithm strategy
 };
 
 } // namespace ehsm::services

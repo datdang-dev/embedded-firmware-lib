@@ -6,7 +6,7 @@
  * @license MIT License
  */
 
-#include "ehsm/types/status.hpp"
+#include "status.hpp"
 
 namespace ehsm::types {
 

@@ -12,15 +12,13 @@
  * @license MIT License
  */
 
-#include "ehsm/api/ihsm_api.hpp"
-#include "ehsm/api/hsm_api_impl.hpp"
-#include "ehsm/middleware/session_manager.hpp"
-#include "ehsm/services/crypto/crypto_service.hpp"
-#include "ehsm/services/crypto/aes256_algorithm.hpp"
-#include "ehsm/services/keystore_service.hpp"
-#include "ehsm/types/status.hpp"
-#include "ehsm/types/algorithm.hpp"
-#include "ehsm/types/key_slot.hpp"
+#include "common.hpp"
+#include "ihsm_api.hpp"
+#include "hsm_api_impl.hpp"
+#include "session_manager.hpp"
+#include "crypto_service.hpp"
+#include "aes256_algorithm.hpp"
+#include "keystore_service.hpp"
 
 #include <iostream>
 #include <array>
@@ -108,8 +106,6 @@ int main() {
         static_cast<uint8_t>(types::KeyPermission::ENCRYPT | types::KeyPermission::DECRYPT));
     if (!status.isOk()) {
         std::cout << "[MAIN] ERROR: importKey failed: " << status.message() << "\n";
-        hsmApi->closeSession(sessionId);
-        hsmApi->deinit();
         return EXIT_FAILURE;
     }
     std::cout << "[MAIN] Key imported successfully\n\n";
@@ -124,8 +120,6 @@ int main() {
 
     if (!status.isOk()) {
         std::cout << "[MAIN] ERROR: Demo failed: " << status.message() << "\n";
-        hsmApi->closeSession(sessionId);
-        hsmApi->deinit();
         return EXIT_FAILURE;
     }
 
@@ -136,13 +130,13 @@ int main() {
     
     std::cout << "[MAIN] Deleting key from slot " 
               << static_cast<int>(kTestKeySlotId) << "...\n";
-    hsmApi->deleteKey(kTestKeySlotId);
+    (void)hsmApi->deleteKey(kTestKeySlotId);
     
     std::cout << "[MAIN] Closing session...\n";
-    hsmApi->closeSession(sessionId);
+    (void)hsmApi->closeSession(sessionId);
     
     std::cout << "[MAIN] Deinitializing HSM...\n";
-    hsmApi->deinit();
+    (void)hsmApi->deinit();
 
     std::cout << "\n=================================================\n";
     std::cout << "  Demo completed successfully!\n";

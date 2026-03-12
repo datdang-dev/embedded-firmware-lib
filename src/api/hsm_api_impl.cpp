@@ -6,8 +6,9 @@
  * @license MIT License
  */
 
-#include "ehsm/api/hsm_api_impl.hpp"
-#include "ehsm/middleware/isession_manager.hpp"
+#include "common.hpp"
+#include "hsm_api_impl.hpp"
+#include "isession_manager.hpp"
 
 namespace ehsm::api {
 
@@ -134,6 +135,7 @@ Status HsmApiImpl::encrypt(
         return Status(types::StatusCode::ERR_AUTH_FAILED);
     }
 
+    (void)algorithm;  // Algorithm is handled by CryptoService
     return cryptoService_->encrypt(input, output, keySlotId);
 }
 
@@ -171,6 +173,7 @@ Status HsmApiImpl::decrypt(
         return Status(types::StatusCode::ERR_AUTH_FAILED);
     }
 
+    (void)algorithm;  // Algorithm is handled by CryptoService
     return cryptoService_->decrypt(input, output, keySlotId);
 }
 

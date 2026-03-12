@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include "ehsm/services/ikeystore_service.hpp"
-#include "ehsm/types/key_slot.hpp"
+#include "ikeystore_service.hpp"
+#include "key_slot.hpp"
 #include <array>
 
 namespace ehsm::services {

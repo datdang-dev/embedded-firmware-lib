@@ -9,7 +9,7 @@
  * @license MIT License
  */
 
-#include "ehsm/services/crypto/aes256_algorithm.hpp"
+#include "aes256_algorithm.hpp"
 #include <cstring>
 
 namespace ehsm::services::crypto {

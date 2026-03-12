@@ -6,7 +6,8 @@
  * @license MIT License
  */
 
-#include "ehsm/middleware/session_manager.hpp"
+#include "common.hpp"
+#include "session_manager.hpp"
 
 namespace ehsm::mw {
 

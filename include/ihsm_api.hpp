@@ -8,9 +8,7 @@
 
 #pragma once
 
-#include "ehsm/types/status.hpp"
-#include "ehsm/types/algorithm.hpp"
-#include "ehsm/types/key_slot.hpp"
+#include "common.hpp"
 #include <span>
 
 namespace ehsm::api {

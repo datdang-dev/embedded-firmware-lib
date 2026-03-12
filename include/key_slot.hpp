@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "ehsm/types/algorithm.hpp"
+#include "algorithm.hpp"
 #include <cstdint>
 #include <cstddef>
 
@@ -23,6 +23,11 @@ inline constexpr size_t kMaxKeySize = 64U;
  * @brief Maximum number of key slots.
  */
 inline constexpr uint8_t kMaxKeySlots = 8U;
+
+/**
+ * @brief Maximum number of sessions.
+ */
+inline constexpr uint8_t kMaxSessions = 4U;
 
 /**
  * @brief Invalid key slot ID.

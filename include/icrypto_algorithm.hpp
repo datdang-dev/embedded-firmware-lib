@@ -8,9 +8,7 @@
 
 #pragma once
 
-#include "ehsm/types/status.hpp"
-#include "ehsm/types/algorithm.hpp"
-#include <span>
+#include "common.hpp"
 
 namespace ehsm::services {
 

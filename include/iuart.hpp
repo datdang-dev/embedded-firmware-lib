@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "ehsm/types/status.hpp"
+#include "status.hpp"
 #include <span>
 #include <cstdarg>
 

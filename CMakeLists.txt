@@ -10,8 +10,8 @@ project(embedded_hsm_cpp
     LANGUAGES C CXX
 )
 
-# C++17 standard
-set(CMAKE_CXX_STANDARD 17)
+# C++20 standard (required for std::span)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -45,7 +45,7 @@ else()
     add_compile_definitions(TARGET_PLATFORM_EMBEDDED)
 endif()
 
-# Include directories
+# Include directories - flat structure
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # =============================================================================

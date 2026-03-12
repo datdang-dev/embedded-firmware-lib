@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include "ehsm/types/status.hpp"
-#include "ehsm/types/key_slot.hpp"
+#include "status.hpp"
+#include "key_slot.hpp"
 
 namespace ehsm::mw {
 

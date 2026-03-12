@@ -8,8 +8,9 @@
 
 #pragma once
 
-#include "ehsm/middleware/isession_manager.hpp"
-#include "ehsm/types/key_slot.hpp"
+#include "common.hpp"
+#include "isession_manager.hpp"
+#include "key_slot.hpp"
 #include <array>
 
 namespace ehsm::mw {
