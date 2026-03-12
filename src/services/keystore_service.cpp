@@ -53,9 +53,11 @@ Status KeystoreService::importKey(
         return Status(types::StatusCode::ERR_INVALID_KEY_ID);
     }
 
-    if (keyData.empty() || keyData.size() > types::kMaxKeySize) {
-        return Status(types::StatusCode::ERR_INVALID_PARAM);
-    }
+    // BUG-001: Removed key size validation - allows buffer overflow!
+    // Original code:
+    // if (keyData.empty() || keyData.size() > types::kMaxKeySize) {
+    //     return Status(types::StatusCode::ERR_INVALID_PARAM);
+    // }
 
     auto& slot = keySlots_[keySlotId];
 

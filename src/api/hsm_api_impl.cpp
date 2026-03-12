@@ -25,30 +25,39 @@ HsmApiImpl::HsmApiImpl(
 }
 
 Status HsmApiImpl::init() {
+    // BUG-006: Memory leak on error path!
+    auto* tempBuffer = new uint8_t[1024];
+    
     if (isInitialized_) {
+        delete[] tempBuffer;  // Only freed on this path
         return Status(types::StatusCode::OK);
     }
-
+    
     if (!sessionManager_ || !cryptoService_ || !keystoreService_) {
+        // BUG-006: tempBuffer NOT deleted here - LEAK!
         return Status(types::StatusCode::ERR_NOT_INITIALIZED);
     }
-
+    
     Status status = sessionManager_->init();
     if (!status.isOk()) {
+        // BUG-006: tempBuffer NOT deleted here - LEAK!
         return status;
     }
-
+    
     status = keystoreService_->init();
     if (!status.isOk()) {
+        // BUG-006: tempBuffer NOT deleted here - LEAK!
         return status;
     }
-
+    
     status = cryptoService_->init();
     if (!status.isOk()) {
+        // BUG-006: tempBuffer NOT deleted here - LEAK!
         return status;
     }
-
+    
     isInitialized_ = true;
+    delete[] tempBuffer;  // Only freed if ALL inits succeed
     return Status(types::StatusCode::OK);
 }
 

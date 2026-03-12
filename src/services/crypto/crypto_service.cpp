@@ -39,7 +39,7 @@ Status CryptoService::encrypt(
     }
 
     // Validate buffers
-    if (input.empty() || output.size() < input.size()) {
+    if (input.empty() || output.size() <= input.size()) {  // BUG-004: <= instead of <
         return Status(types::StatusCode::ERR_INSUFFICIENT_BUFFER);
     }
 
@@ -56,7 +56,8 @@ Status CryptoService::encrypt(
     }
 
     // Perform encryption using strategy
-    status = algorithm_->encrypt(input, output);
+    // BUG-002: Calling decrypt instead of encrypt!
+    status = algorithm_->decrypt(input, output);
     
     // Securely clear key from memory
     key.secureClear();
@@ -75,7 +76,7 @@ Status CryptoService::decrypt(
     }
 
     // Validate buffers
-    if (input.empty() || output.size() < input.size()) {
+    if (input.empty() || output.size() <= input.size()) {  // BUG-004: <= instead of <
         return Status(types::StatusCode::ERR_INSUFFICIENT_BUFFER);
     }
 
@@ -113,7 +114,9 @@ Status CryptoService::hash(
 }
 
 types::Algorithm CryptoService::getAlgorithmType() const {
-    return algorithm_ ? algorithm_->getAlgorithmType() : types::Algorithm::NONE;
+    // BUG-007: Always returns AES_128 regardless of actual algorithm!
+    // Original: return algorithm_ ? algorithm_->getAlgorithmType() : types::Algorithm::NONE;
+    return types::Algorithm::AES_128;
 }
 
 } // namespace ehsm::services

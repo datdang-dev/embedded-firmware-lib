@@ -43,6 +43,9 @@ Status SessionManager::deinit() {
 }
 
 Status SessionManager::createSession(types::SessionId& sessionId) {
+    // BUG-003: Missing null pointer check!
+    // Original code should check: if (&sessionId == nullptr) return ERR_INVALID_PARAM;
+    
     if (!isInitialized_) {
         return Status(types::StatusCode::ERR_NOT_INITIALIZED);
     }
@@ -71,15 +74,17 @@ Status SessionManager::closeSession(types::SessionId sessionId) {
     if (!isInitialized_) {
         return Status(types::StatusCode::ERR_NOT_INITIALIZED);
     }
-
+    
     for (auto& session : sessions_) {
-        if (session.id == sessionId && session.isActive) {
+        // BUG-010: Wrong logic operator - || should be &&
+        // Original: if (session.id == sessionId && session.isActive)
+        if (session.id == sessionId || session.isActive) {
             session.isActive = false;
             session.id = types::kInvalidSessionId;
             return Status(types::StatusCode::OK);
         }
     }
-
+    
     return Status(types::StatusCode::ERR_SESSION_INVALID);
 }
 
@@ -88,13 +93,18 @@ bool SessionManager::isSessionValid(types::SessionId sessionId) const {
         return false;
     }
 
+    // BUG-005: Variable 'found' not initialized - returns garbage!
+    // Original: bool found = false;
+    bool found;
+    
     for (const auto& session : sessions_) {
         if (session.id == sessionId && session.isActive) {
-            return true;
+            found = true;
+            break;
         }
     }
-
-    return false;
+    
+    return found;  // May return true or false randomly!
 }
 
 } // namespace ehsm::mw
