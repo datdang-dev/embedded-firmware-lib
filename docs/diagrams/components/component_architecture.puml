@@ -1,0 +1,120 @@
+@startuml component_architecture
+title Embedded HSM - Component Architecture Diagram
+
+skinparam linetype ortho
+skinparam componentStyle rectangle
+
+package "Application Layer" {
+  [User Application] as App #LightBlue
+}
+
+package "API Layer (Facade)" {
+  component "IHsmApi\n(Interface)" as IHsmApi #LightYellow
+  component "HsmApiImpl\n(Facade Implementation)" as HsmApi #LightGreen
+}
+
+package "Middleware Layer" {
+  component "ISessionManager\n(Interface)" as ISessMgr #LightYellow
+  component "SessionManager\n(Implementation)" as SessMgr #LightGreen
+}
+
+package "Service Layer" {
+  package "Crypto Services" {
+    component "ICryptoService\n(Interface)" as ICrypto #LightYellow
+    component "CryptoService\n(Implementation)" as CryptoSvc #LightGreen
+    
+    component "ICryptoAlgorithm\n(Strategy Interface)" as IAlgo #LightYellow
+    component "Aes128Algorithm" as Aes128 #LightGreen
+    component "Aes256Algorithm" as Aes256 #LightGreen
+  }
+  
+  package "Keystore Services" {
+    component "IKeystoreService\n(Interface)" as IKey #LightYellow
+    component "KeystoreService\n(Implementation)" as KeySvc #LightGreen
+  }
+}
+
+package "Driver Layer" {
+  component "CryptoDriver" as CryptoDrv #Orange
+  component "KeystoreDriver" as KeyDrv #Orange
+  component "StorageDriver" as StorageDrv #Orange
+  note bottom: **TODO:** Implement driver layer
+end note
+}
+
+package "MCAL Layer (C Interfaces)" {
+  component "IMcalUart\n(C Interface)" as MUart #LightCyan
+  component "IMcalStorage\n(C Interface)" as MStorage #LightCyan
+  component "IMcalCrypto\n(C Interface)" as MCrypto #LightCyan
+  
+  package "HOST Implementations" {
+    component "UartStub" as UartStub #Pink
+    component "StorageStub" as StorageStub #Pink
+  }
+  
+  package "EMBEDDED Implementations" {
+    component "UartReal" as UartReal #Pink
+    component "FlashDriver" as Flash #Pink
+  }
+}
+
+' Application to API
+App --> IHsmApi : uses
+IHsmApi <|-- HsmApi : implements
+
+' API to Middleware and Services
+HsmApi --> ISessMgr : depends on
+HsmApi --> ICrypto : depends on
+HsmApi --> IKey : depends on
+
+' Middleware implementation
+ISessMgr <|-- SessMgr : implements
+
+' Service implementations
+ICrypto <|-- CryptoSvc : implements
+IKey <|-- KeySvc : implements
+
+' Strategy pattern
+IAlgo <|-- Aes128 : implements
+IAlgo <|-- Aes256 : implements
+CryptoSvc --> IAlgo : uses (strategy)
+
+' Service dependencies
+CryptoSvc --> IKey : depends on (DI)
+
+' Services to Drivers (TODO)
+CryptoSvc -.-> CryptoDrv : uses (TODO)
+KeySvc -.-> KeyDrv : uses (TODO)
+
+' Drivers to MCAL
+CryptoDrv --> MCrypto : uses
+KeyDrv --> MStorage : uses
+StorageDrv --> MStorage : uses
+
+' MCAL implementations
+MCrypto <|-- UartStub : HOST
+MCrypto <|-- UartReal : EMBEDDED
+MStorage <|-- StorageStub : HOST
+MStorage <|-- Flash : EMBEDDED
+
+note right of App
+  **Entry Point:** main.cpp
+  **Composition Root**
+end note
+
+note left of HsmApi
+  **Facade Pattern**
+  Simplifies client interface
+end note
+
+note right of CryptoSvc
+  **Strategy Pattern**
+  Runtime algorithm selection
+end note
+
+note right of IKey
+  **Repository Pattern**
+  Key storage abstraction
+end note
+
+@enduml

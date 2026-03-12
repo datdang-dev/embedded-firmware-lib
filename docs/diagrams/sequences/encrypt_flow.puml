@@ -1,0 +1,67 @@
+@startuml sequence_encrypt
+title Encryption Flow - Sequence Diagram
+
+skinparam linetype ortho
+skinparam participantPadding 10
+
+participant "App" as App
+participant "HsmApiImpl" as Api
+participant "SessionManager" as Session
+participant "CryptoService" as Crypto
+participant "KeystoreService" as Key
+participant "Aes256Algorithm" as Algo
+
+App -> Api: encrypt(sessionId, keySlotId, AES_256, plaintext)
+activate Api
+
+Api -> Api: validateParameters()
+Api -> Session: isSessionValid(sessionId)
+activate Session
+Session --> Api: true
+deactivate Session
+
+Api -> Key: getSlotInfo(keySlotId)
+activate Key
+Key --> Api: KeySlotInfo
+deactivate Key
+
+Api -> Api: checkPermission(ENCRYPT)
+
+Api -> Crypto: encrypt(plaintext, ciphertext, keySlotId)
+activate Crypto
+
+Crypto -> Key: getKey(keySlotId)
+activate Key
+Key --> Crypto: Key
+deactivate Key
+
+Crypto -> Algo: encrypt(input, output)
+activate Algo
+Algo --> Crypto: Status
+deactivate Algo
+
+Crypto --> Api: Status
+deactivate Crypto
+
+Api --> App: Status
+deactivate Api
+
+note right of App
+  **Preconditions:**
+  - HSM initialized
+  - Session created
+  - Key imported with ENCRYPT permission
+  
+  **Postconditions:**
+  - Ciphertext generated
+  - Key securely cleared
+end note
+
+note left of Crypto
+  **Security:**
+  - Key retrieved from keystore
+  - Key cleared after use
+  - No key exposure
+end note
+
+@enduml

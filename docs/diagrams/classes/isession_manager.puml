@@ -1,0 +1,34 @@
+@startuml isession_manager_class
+title ISessionManager Interface - Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+interface "ISessionManager" as ISess {
+    +virtual ~ISessionManager() = 0
+    
+    +virtual Status init() = 0
+    +virtual Status deinit() = 0
+    
+    +virtual Status createSession(SessionId& sessionId) = 0
+    +virtual Status closeSession(SessionId sessionId) = 0
+    +virtual bool isSessionValid(SessionId sessionId) const = 0
+}
+
+note right of ISess
+  **Purpose:** Session lifecycle management
+  
+  **Responsibilities:**
+  - Create/close sessions
+  - Session validation
+  - Session pool management (max 4 sessions)
+  
+  **Implementation:** SessionManager
+  
+  **Location:** include/isession_manager.hpp
+end note
+
+ISess ..> Status : returns
+ISess ..> SessionId : uses
+
+@enduml

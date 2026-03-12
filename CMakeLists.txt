@@ -124,6 +124,10 @@ if(TARGET_PLATFORM STREQUAL "HOST")
         ehsm_mcal
     )
     message(STATUS "Host executable 'ehsm_host' configured")
+
+    # Enable testing for HOST platform
+    enable_testing()
+    add_subdirectory(tests)
 endif()
 
 # =============================================================================

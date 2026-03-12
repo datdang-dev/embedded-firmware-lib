@@ -1,0 +1,47 @@
+@startuml icrypto_service_class
+title ICryptoService Interface - Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+interface "ICryptoService" as ICrypto {
+    +virtual ~ICryptoService() = 0
+    
+    +virtual Status init() = 0
+    +virtual Status deinit() = 0
+    
+    +virtual Status encrypt(span<const uint8_t> input,
+                           span<uint8_t> output,
+                           uint8_t keySlotId) = 0
+    
+    +virtual Status decrypt(span<const uint8_t> input,
+                           span<uint8_t> output,
+                           uint8_t keySlotId) = 0
+    
+    +virtual Status hash(Algorithm algorithm,
+                        span<const uint8_t> input,
+                        span<uint8_t> output) = 0
+}
+
+note right of ICrypto
+  **Purpose:** Cryptographic operations interface
+  
+  **Responsibilities:**
+  - Symmetric encryption/decryption
+  - Hash computation
+  - Algorithm abstraction via Strategy pattern
+  
+  **Dependencies:** IKeystoreService (for key retrieval)
+  
+  **Location:** include/icrypto_service.hpp
+end note
+
+interface "IKeystoreService" as IKey {
+    +virtual Status getKey(uint8_t slotId, Key& key) = 0
+}
+
+ICrypto ..> IKey : uses (DI)
+ICrypto ..> Status : returns
+ICrypto ..> Algorithm : uses
+
+@enduml

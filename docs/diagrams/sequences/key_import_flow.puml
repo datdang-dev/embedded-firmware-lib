@@ -1,0 +1,55 @@
+@startuml sequence_key_import
+title Key Import Flow - Sequence Diagram
+
+skinparam linetype ortho
+skinparam participantPadding 10
+
+participant "App" as App
+participant "HsmApiImpl" as Api
+participant "KeystoreService" as Key
+
+App -> Api: importKey(slotId, AES_256, keyData, permissions)
+activate Api
+
+Api -> Api: validateParameters()
+Api -> Api: checkKeySize(keyData, AES_256)
+
+Api -> Key: importKey(slotId, algorithm, keyData, permissions)
+activate Key
+
+Key -> Key: isValidSlotId(slotId)
+Key -> Key: isSlotOccupied(slotId)
+
+alt Slot is Empty
+    Key -> Key: copyKeyToSecureStorage()
+    Key -> Key: setPermissions(permissions)
+    Key --> Api: Status::OK
+else Slot is Occupied
+    Key --> Api: Status::ERR_KEY_SLOT_FULL
+end
+
+deactivate Key
+
+Api --> App: Status
+deactivate Api
+
+note right of App
+  **Preconditions:**
+  - HSM initialized
+  - Valid key data
+  - Key size matches algorithm
+  
+  **Postconditions:**
+  - Key stored securely
+  - Permissions set
+  - Slot marked occupied
+end note
+
+note left of Key
+  **Security:**
+  - Key copied to secure memory
+  - Original keyData not cleared (caller responsibility)
+  - Permissions enforced on access
+end note
+
+@enduml

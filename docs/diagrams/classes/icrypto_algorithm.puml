@@ -1,0 +1,71 @@
+@startuml icrypto_algorithm_class
+title ICryptoAlgorithm Strategy Interface - Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+interface "ICryptoAlgorithm" as ICryptoAlgo {
+    +virtual ~ICryptoAlgorithm() = 0
+    
+    +virtual Algorithm getAlgorithmType() const = 0
+    +virtual size_t getKeySize() const = 0
+    +virtual size_t getBlockSize() const = 0
+    
+    +virtual Status encrypt(span<const uint8_t> input,
+                           span<uint8_t> output) = 0
+    
+    +virtual Status decrypt(span<const uint8_t> input,
+                           span<uint8_t> output) = 0
+}
+
+class "Aes128Algorithm" as Aes128 {
+    -kMockEncryptKey : uint8_t = 0x5A
+    
+    +getAlgorithmType() Algorithm override
+    +getKeySize() size_t override
+    +getBlockSize() size_t override
+    +encrypt(input, output) Status override
+    +decrypt(input, output) Status override
+    -encryptBlock(input, output, key) void
+    -decryptBlock(input, output, key) void
+}
+
+class "Aes256Algorithm" as Aes256 {
+    -kMockEncryptKey : uint8_t = 0x5A
+    
+    +getAlgorithmType() Algorithm override
+    +getKeySize() size_t override
+    +getBlockSize() size_t override
+    +encrypt(input, output) Status override
+    +decrypt(input, output) Status override
+    -encryptBlock(input, output, key) void
+    -decryptBlock(input, output, key) void
+}
+
+ICryptoAlgo <|-- Aes128 : implements
+ICryptoAlgo <|-- Aes256 : implements
+
+note right of ICryptoAlgo
+  **Pattern:** Strategy Pattern
+  
+  **Purpose:** Algorithm abstraction for runtime selection
+  
+  **Benefits:**
+  - Add new algorithms without modifying CryptoService
+  - Runtime algorithm selection
+  - Easy testing with mock algorithms
+  
+  **Location:** include/icrypto_algorithm.hpp
+end note
+
+note bottom of Aes128
+  **WARNING:** Mock implementation (XOR-based)
+  NOT for production use!
+end note
+
+note bottom of Aes256
+  **WARNING:** Mock implementation (XOR-based)
+  NOT for production use!
+end note
+
+@enduml

@@ -1,0 +1,62 @@
+@startuml ihsm_api_class
+title IHsmApi Interface - Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+interface "IHsmApi" as IHsmApi {
+    +virtual ~IHsmApi() = 0
+    
+    ' Lifecycle
+    +virtual Status init() = 0
+    +virtual Status deinit() = 0
+    +virtual bool isReady() const = 0
+    
+    ' Session Management
+    +virtual Status createSession(SessionId& sessionId) = 0
+    +virtual Status closeSession(SessionId sessionId) = 0
+    +virtual bool isSessionValid(SessionId sessionId) const = 0
+    
+    ' Cryptographic Operations
+    +virtual Status encrypt(SessionId sessionId, uint8_t keySlotId, 
+                           Algorithm algorithm, 
+                           span<const uint8_t> input,
+                           span<uint8_t> output) = 0
+    +virtual Status decrypt(SessionId sessionId, uint8_t keySlotId,
+                           Algorithm algorithm,
+                           span<const uint8_t> input,
+                           span<uint8_t> output) = 0
+    
+    ' Key Management
+    +virtual Status importKey(uint8_t keySlotId, Algorithm algorithm,
+                             span<const uint8_t> keyData,
+                             uint8_t permissions) = 0
+    +virtual Status deleteKey(uint8_t keySlotId) = 0
+    +virtual Status getKeySlotInfo(uint8_t keySlotId, 
+                                   KeySlotInfo& info) = 0
+    +virtual Status clearAllKeys() = 0
+    
+    ' Diagnostics
+    +virtual const char* getVersion() const = 0
+}
+
+note right of IHsmApi
+  **Purpose:** Public facade interface for HSM operations
+  
+  **Responsibilities:**
+  - Unified API for all HSM functionality
+  - Session-based operation
+  - Key management
+  - Cryptographic operations
+  
+  **Thread Safety:** Not thread-safe by default
+  
+  **Location:** include/ihsm_api.hpp
+end note
+
+IHsmApi ..> Status : returns
+IHsmApi ..> SessionId : uses
+IHsmApi ..> Algorithm : uses
+IHsmApi ..> KeySlotInfo : uses
+
+@enduml
