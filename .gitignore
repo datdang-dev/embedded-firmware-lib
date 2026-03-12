@@ -1,0 +1,71 @@
+# =============================================================================
+# Embedded HSM Firmware - .gitignore
+# =============================================================================
+# Excludes build artifacts, IDE files, and system files
+# =============================================================================
+
+# Build directories
+build/
+build-*/
+*.build/
+*.cache/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+CMakeRuleHashes.txt
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+Makefile
+*.cmake
+
+# Compiled objects
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Coverage files
+*.gcda
+*.gcno
+*.gcov
+*.info
+
+# Documentation generated
+docs/html/
+docs/latex/
+docs/doxygen/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Embedded specific
+*.elf
+*.hex
+*.bin
+*.map
+
+# Toolchain artifacts
+*.tmp
+*.log
+
+# Test outputs
+Testing/
+CTestTestfile.cmake
+test_results/
+
+*bmad*
+*AGENT.md*
+*CLAUDE.md*
+*kilo*

@@ -1,0 +1,73 @@
+# =============================================================================
+# Doxyfile.in - Doxygen Configuration Template
+# =============================================================================
+# This file is processed by CMake configure_file() command.
+# Variables like @DOXYGEN_INPUT_DIR@ are replaced by CMake.
+# =============================================================================
+
+# Project settings
+PROJECT_NAME           = "Embedded HSM Firmware"
+PROJECT_NUMBER         = "1.0.0"
+PROJECT_BRIEF          = "Hardware Security Module Firmware with 5-Layer Architecture"
+
+# Input/Output directories
+INPUT                  = @DOXYGEN_INPUT_DIR@
+OUTPUT_DIRECTORY       = @DOXYGEN_OUTPUT_DIR@
+
+# General settings
+RECURSIVE              = YES
+FILE_PATTERNS          = *.h *.c *.hpp *.cpp
+EXCLUDE_PATTERNS       = */stubs/* */tests/*
+EXCLUDE_SYMLINKS       = YES
+
+# Documentation extraction
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_METHODS  = NO
+
+# Source browser
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = NO
+
+# Cross-referencing
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+
+# Output format
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+GENERATE_RTF           = NO
+GENERATE_XML           = NO
+GENERATE_DOCBOOK       = NO
+
+# HTML settings
+HTML_OUTPUT            = html
+HTML_COLORSTYLE        = LIGHT
+HTML_EXTRA_STYLESHEET  = 
+
+# Class diagram settings
+HAVE_DOT               = NO
+
+# Preprocessor settings
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+PREDEFINED             = "TARGET_PLATFORM_HOST=1" \
+                         "HSM_MAX_KEY_SLOTS=8" \
+                         "HSM_MAX_JOB_QUEUE_DEPTH=16"
+
+# Warning settings
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
+WARN_FORMAT            = "$file:$line: $text"
+
+# Search settings
+SEARCHENGINE           = YES
+
+# Miscellaneous
+QUIET                  = NO
+WARN_LOGFILE           = doxygen_warnings.txt
