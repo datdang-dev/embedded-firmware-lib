@@ -19,7 +19,7 @@ TEST_CASE("KeystoreService initializes successfully", "[keystore]") {
     KeystoreService keystore;
 
     // Act
-    auto status = (void)keystore.init();
+    auto status = keystore.init();
 
     // Assert
     REQUIRE(status.isOk());
@@ -28,11 +28,11 @@ TEST_CASE("KeystoreService initializes successfully", "[keystore]") {
 TEST_CASE("KeystoreService double initialization succeeds", "[keystore]") {
     // Arrange
     KeystoreService keystore;
-    auto firstInit = (void)keystore.init();
+    auto firstInit = keystore.init();
     REQUIRE(firstInit.isOk());
 
     // Act
-    auto secondInit = (void)keystore.init();
+    auto secondInit = keystore.init();
 
     // Assert
     REQUIRE(secondInit.isOk());
@@ -44,7 +44,7 @@ TEST_CASE("KeystoreService deinitializes successfully", "[keystore]") {
     (void)keystore.init();
 
     // Act
-    auto status = (void)keystore.deinit();
+    auto status = keystore.deinit();
 
     // Assert
     REQUIRE(status.isOk());
@@ -55,7 +55,7 @@ TEST_CASE("KeystoreService deinit without init fails", "[keystore]") {
     KeystoreService keystore;
 
     // Act
-    auto status = (void)keystore.deinit();
+    auto status = keystore.deinit();
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -73,7 +73,7 @@ TEST_CASE("KeystoreService import key to empty slot", "[keystore]") {
     uint8_t permissions = static_cast<uint8_t>(types::KeyPermission::ENCRYPT);
 
     // Act
-    auto status = (void)keystore.importKey(0, types::Algorithm::AES_128, keyData, permissions);
+    auto status = keystore.importKey(0, types::Algorithm::AES_128, keyData, permissions);
 
     // Assert
     REQUIRE(status.isOk());
@@ -93,11 +93,11 @@ TEST_CASE("KeystoreService import key to occupied slot fails", "[keystore]") {
     uint8_t permissions = static_cast<uint8_t>(types::KeyPermission::ENCRYPT);
 
     // Import first key
-    auto firstImport = (void)keystore.importKey(0, types::Algorithm::AES_128, keyData, permissions);
+    auto firstImport = keystore.importKey(0, types::Algorithm::AES_128, keyData, permissions);
     REQUIRE(firstImport.isOk());
 
     // Act - Try to import to same slot
-    auto secondImport = (void)keystore.importKey(0, types::Algorithm::AES_128, keyData, permissions);
+    auto secondImport = keystore.importKey(0, types::Algorithm::AES_128, keyData, permissions);
 
     // Assert
     REQUIRE_FALSE(secondImport.isOk());
@@ -118,7 +118,7 @@ TEST_CASE("KeystoreService delete key from occupied slot", "[keystore]") {
     REQUIRE(keystore.isSlotOccupied(0));
 
     // Act
-    auto status = (void)keystore.deleteKey(0);
+    auto status = keystore.deleteKey(0);
 
     // Assert
     REQUIRE(status.isOk());
@@ -131,7 +131,7 @@ TEST_CASE("KeystoreService delete key from empty slot fails", "[keystore]") {
     (void)keystore.init();
 
     // Act
-    auto status = (void)keystore.deleteKey(0);
+    auto status = keystore.deleteKey(0);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -153,7 +153,7 @@ TEST_CASE("KeystoreService get key from valid slot", "[keystore]") {
     types::Key retrievedKey;
 
     // Act
-    auto status = (void)keystore.getKey(0, retrievedKey);
+    auto status = keystore.getKey(0, retrievedKey);
 
     // Assert
     REQUIRE(status.isOk());
@@ -170,7 +170,7 @@ TEST_CASE("KeystoreService get key from invalid slot fails", "[keystore]") {
     types::Key retrievedKey;
 
     // Act
-    auto status = (void)keystore.getKey(0, retrievedKey);
+    auto status = keystore.getKey(0, retrievedKey);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -185,7 +185,7 @@ TEST_CASE("KeystoreService get key from out-of-range slot fails", "[keystore]") 
     types::Key retrievedKey;
 
     // Act
-    auto status = (void)keystore.getKey(0xFF, retrievedKey);
+    auto status = keystore.getKey(0xFF, retrievedKey);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -212,7 +212,7 @@ TEST_CASE("KeystoreService clear all keys", "[keystore]") {
     REQUIRE(keystore.isSlotOccupied(2));
 
     // Act
-    auto status = (void)keystore.clearAll();
+    auto status = keystore.clearAll();
 
     // Assert
     REQUIRE(status.isOk());
@@ -226,7 +226,7 @@ TEST_CASE("KeystoreService clear all when not initialized fails", "[keystore]") 
     KeystoreService keystore;
 
     // Act
-    auto status = (void)keystore.clearAll();
+    auto status = keystore.clearAll();
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -287,12 +287,12 @@ TEST_CASE("KeystoreService secure clear verification", "[keystore]") {
     REQUIRE(std::memcmp(keyBefore.data, keyData.data(), 32) == 0);
 
     // Act - Delete key
-    auto status = (void)keystore.deleteKey(0);
+    auto status = keystore.deleteKey(0);
     REQUIRE(status.isOk());
 
     // Try to get key after delete
     types::Key keyAfter;
-    auto getStatus = (void)keystore.getKey(0, keyAfter);
+    auto getStatus = keystore.getKey(0, keyAfter);
 
     // Assert - Key should be cleared
     REQUIRE_FALSE(getStatus.isOk());
@@ -315,7 +315,7 @@ TEST_CASE("KeystoreService get slot info from valid slot", "[keystore]") {
     types::KeySlotInfo info;
 
     // Act
-    auto status = (void)keystore.getSlotInfo(3, info);
+    auto status = keystore.getSlotInfo(3, info);
 
     // Assert
     REQUIRE(status.isOk());
@@ -334,7 +334,7 @@ TEST_CASE("KeystoreService get slot info from empty slot", "[keystore]") {
     types::KeySlotInfo info;
 
     // Act
-    auto status = (void)keystore.getSlotInfo(5, info);
+    auto status = keystore.getSlotInfo(5, info);
 
     // Assert
     REQUIRE(status.isOk());
@@ -352,7 +352,7 @@ TEST_CASE("KeystoreService get slot info from invalid slot fails", "[keystore]")
     types::KeySlotInfo info;
 
     // Act
-    auto status = (void)keystore.getSlotInfo(0xFF, info);
+    auto status = keystore.getSlotInfo(0xFF, info);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -404,7 +404,7 @@ TEST_CASE("KeystoreService import key with invalid slot ID", "[keystore]") {
     uint8_t permissions = static_cast<uint8_t>(types::KeyPermission::ENCRYPT);
 
     // Act
-    auto status = (void)keystore.importKey(0xFF, types::Algorithm::AES_128, keyData, permissions);
+    auto status = keystore.importKey(0xFF, types::Algorithm::AES_128, keyData, permissions);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -420,7 +420,7 @@ TEST_CASE("KeystoreService import key with empty key data", "[keystore]") {
     uint8_t permissions = static_cast<uint8_t>(types::KeyPermission::ENCRYPT);
 
     // Act
-    auto status = (void)keystore.importKey(0, types::Algorithm::AES_128, emptyKeyData, permissions);
+    auto status = keystore.importKey(0, types::Algorithm::AES_128, emptyKeyData, permissions);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -436,7 +436,7 @@ TEST_CASE("KeystoreService import key with too large key data", "[keystore]") {
     uint8_t permissions = static_cast<uint8_t>(types::KeyPermission::ENCRYPT);
 
     // Act
-    auto status = (void)keystore.importKey(0, types::Algorithm::AES_128, tooLargeKeyData, permissions);
+    auto status = keystore.importKey(0, types::Algorithm::AES_128, tooLargeKeyData, permissions);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -451,7 +451,7 @@ TEST_CASE("KeystoreService import key without init fails", "[keystore]") {
     uint8_t permissions = static_cast<uint8_t>(types::KeyPermission::ENCRYPT);
 
     // Act
-    auto status = (void)keystore.importKey(0, types::Algorithm::AES_128, keyData, permissions);
+    auto status = keystore.importKey(0, types::Algorithm::AES_128, keyData, permissions);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -463,7 +463,7 @@ TEST_CASE("KeystoreService delete key without init fails", "[keystore]") {
     KeystoreService keystore;
 
     // Act
-    auto status = (void)keystore.deleteKey(0);
+    auto status = keystore.deleteKey(0);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -476,7 +476,7 @@ TEST_CASE("KeystoreService get key without init fails", "[keystore]") {
     types::Key key;
 
     // Act
-    auto status = (void)keystore.getKey(0, key);
+    auto status = keystore.getKey(0, key);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -489,7 +489,7 @@ TEST_CASE("KeystoreService get slot info without init fails", "[keystore]") {
     types::KeySlotInfo info;
 
     // Act
-    auto status = (void)keystore.getSlotInfo(0, info);
+    auto status = keystore.getSlotInfo(0, info);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -508,7 +508,7 @@ TEST_CASE("KeystoreService fill all slots", "[keystore]") {
 
     // Act - Fill all 8 slots
     for (uint8_t i = 0; i < types::kMaxKeySlots; ++i) {
-        auto status = (void)keystore.importKey(i, types::Algorithm::AES_128, keyData, permissions);
+        auto status = keystore.importKey(i, types::Algorithm::AES_128, keyData, permissions);
         REQUIRE(status.isOk());
         REQUIRE(keystore.isSlotOccupied(i));
     }
@@ -528,8 +528,8 @@ TEST_CASE("KeystoreService import different algorithms", "[keystore]") {
     uint8_t permissions = static_cast<uint8_t>(types::KeyPermission::ALL);
 
     // Act
-    auto status128 = (void)keystore.importKey(0, types::Algorithm::AES_128, aes128Key, permissions);
-    auto status256 = (void)keystore.importKey(1, types::Algorithm::AES_256, aes256Key, permissions);
+    auto status128 = keystore.importKey(0, types::Algorithm::AES_128, aes128Key, permissions);
+    auto status256 = keystore.importKey(1, types::Algorithm::AES_256, aes256Key, permissions);
 
     // Assert
     REQUIRE(status128.isOk());

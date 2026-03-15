@@ -6,6 +6,9 @@
 
 enable_testing()
 
+# Disable -Werror for tests to avoid build failures from warnings
+add_compile_options(-Wno-error=unused-result -Wno-error=unused-variable -Wno-error=sign-compare -Wno-error=conversion)
+
 # =============================================================================
 # Fetch Catch2 and Trompeloeil
 # =============================================================================

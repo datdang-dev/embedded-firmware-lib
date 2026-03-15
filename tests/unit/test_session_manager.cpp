@@ -20,7 +20,7 @@ TEST_CASE("SessionManager initializes successfully", "[session]") {
     SessionManager manager;
 
     // Act
-    auto status = (void)manager.init();
+    auto status = manager.init();
 
     // Assert
     REQUIRE(status.isOk());
@@ -29,11 +29,11 @@ TEST_CASE("SessionManager initializes successfully", "[session]") {
 TEST_CASE("SessionManager double initialization succeeds", "[session]") {
     // Arrange
     SessionManager manager;
-    auto firstInit = (void)manager.init();
+    auto firstInit = manager.init();
     REQUIRE(firstInit.isOk());
 
     // Act
-    auto secondInit = (void)manager.init();
+    auto secondInit = manager.init();
 
     // Assert
     REQUIRE(secondInit.isOk());
@@ -45,7 +45,7 @@ TEST_CASE("SessionManager deinitializes successfully", "[session]") {
     (void)manager.init();
 
     // Act
-    auto status = (void)manager.deinit();
+    auto status = manager.deinit();
 
     // Assert
     REQUIRE(status.isOk());
@@ -56,7 +56,7 @@ TEST_CASE("SessionManager deinit without init fails", "[session]") {
     SessionManager manager;
 
     // Act
-    auto status = (void)manager.deinit();
+    auto status = manager.deinit();
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -70,7 +70,7 @@ TEST_CASE("SessionManager create session successfully", "[session]") {
     types::SessionId sessionId;
 
     // Act
-    auto status = (void)manager.createSession(sessionId);
+    auto status = manager.createSession(sessionId);
 
     // Assert
     REQUIRE(status.isOk());
@@ -88,14 +88,14 @@ TEST_CASE("SessionManager create session when all slots full fails", "[session]"
     // Fill all session slots (kMaxSessions = 4)
     for (size_t i = 0; i < types::kMaxSessions; ++i) {
         types::SessionId sessionId;
-        auto status = (void)manager.createSession(sessionId);
+        auto status = manager.createSession(sessionId);
         REQUIRE(status.isOk());
         sessionIds.push_back(sessionId);
     }
 
     // Act - Try to create one more session
     types::SessionId extraSessionId;
-    auto status = (void)manager.createSession(extraSessionId);
+    auto status = manager.createSession(extraSessionId);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -111,7 +111,7 @@ TEST_CASE("SessionManager close valid session", "[session]") {
     REQUIRE(manager.isSessionValid(sessionId));
 
     // Act
-    auto status = (void)manager.closeSession(sessionId);
+    auto status = manager.closeSession(sessionId);
 
     // Assert
     REQUIRE(status.isOk());
@@ -125,7 +125,7 @@ TEST_CASE("SessionManager close invalid session fails", "[session]") {
     types::SessionId invalidSessionId = 999;
 
     // Act
-    auto status = (void)manager.closeSession(invalidSessionId);
+    auto status = manager.closeSession(invalidSessionId);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -138,7 +138,7 @@ TEST_CASE("SessionManager close session without init fails", "[session]") {
     types::SessionId sessionId = 1;
 
     // Act
-    auto status = (void)manager.closeSession(sessionId);
+    auto status = manager.closeSession(sessionId);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -185,7 +185,7 @@ TEST_CASE("SessionManager session ID wraparound", "[session]") {
     // Create sessions up to near wraparound point
     for (uint32_t i = 0; i < 100; ++i) {
         types::SessionId sessionId;
-        auto status = (void)manager.createSession(sessionId);
+        auto status = manager.createSession(sessionId);
         REQUIRE(status.isOk());
         lastSessionId = sessionId;
 
@@ -204,7 +204,7 @@ TEST_CASE("SessionManager create session without init fails", "[session]") {
     types::SessionId sessionId;
 
     // Act
-    auto status = (void)manager.createSession(sessionId);
+    auto status = manager.createSession(sessionId);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -271,7 +271,7 @@ TEST_CASE("SessionManager close non-existent session ID", "[session]") {
     (void)manager.createSession(validSessionId);
 
     // Act - Try to close a different session ID
-    auto status = (void)manager.closeSession(999);
+    auto status = manager.closeSession(999);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -289,7 +289,7 @@ TEST_CASE("SessionManager close already closed session fails", "[session]") {
     (void)manager.closeSession(sessionId);
 
     // Act - Try to close again
-    auto status = (void)manager.closeSession(sessionId);
+    auto status = manager.closeSession(sessionId);
 
     // Assert
     REQUIRE_FALSE(status.isOk());
@@ -308,7 +308,7 @@ TEST_CASE("SessionManager max sessions constant verification", "[session]") {
     std::vector<types::SessionId> sessions;
     for (size_t i = 0; i < types::kMaxSessions; ++i) {
         types::SessionId sessionId;
-        auto status = (void)manager.createSession(sessionId);
+        auto status = manager.createSession(sessionId);
         REQUIRE(status.isOk());
         sessions.push_back(sessionId);
     }
@@ -338,7 +338,7 @@ TEST_CASE("SessionManager create session after closing one", "[session]") {
 
     // Create new session
     types::SessionId newSessionId;
-    auto status = (void)manager.createSession(newSessionId);
+    auto status = manager.createSession(newSessionId);
 
     // Assert
     REQUIRE(status.isOk());
@@ -400,12 +400,12 @@ TEST_CASE("SessionManager reinit after deinit", "[session]") {
     (void)manager.deinit();
 
     // Act - Reinit
-    auto status = (void)manager.init();
+    auto status = manager.init();
     REQUIRE(status.isOk());
 
     // Create new session
     types::SessionId sessionId2;
-    auto createStatus = (void)manager.createSession(sessionId2);
+    auto createStatus = manager.createSession(sessionId2);
 
     // Assert
     REQUIRE(createStatus.isOk());
@@ -425,7 +425,7 @@ TEST_CASE("SessionManager session with 0xFFFFFFFF-1 ID", "[session][edge]") {
 
     for (uint32_t i = 0; i < 1000; ++i) {
         types::SessionId sessionId;
-        auto status = (void)manager.createSession(sessionId);
+        auto status = manager.createSession(sessionId);
         if (status.isOk()) {
             lastValidId = sessionId;
             (void)manager.closeSession(sessionId);

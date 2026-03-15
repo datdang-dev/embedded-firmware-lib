@@ -12,7 +12,7 @@
 
 namespace ehsm::services {
 
-Status KeystoreService::init() {
+types::Status KeystoreService::init() {
   if (isInitialized_) {
     return Status(types::StatusCode::OK);
   }
@@ -28,7 +28,7 @@ Status KeystoreService::init() {
   return Status(types::StatusCode::OK);
 }
 
-Status KeystoreService::deinit() {
+types::Status KeystoreService::deinit() {
   if (!isInitialized_) {
     return Status(types::StatusCode::ERR_NOT_INITIALIZED);
   }
@@ -39,7 +39,7 @@ Status KeystoreService::deinit() {
   return Status(types::StatusCode::OK);
 }
 
-Status KeystoreService::importKey(uint8_t keySlotId, types::Algorithm algorithm,
+types::Status KeystoreService::importKey(uint8_t keySlotId, types::Algorithm algorithm,
                                   std::span<const uint8_t> keyData,
                                   uint8_t permissions) {
   if (!isInitialized_) {
@@ -78,7 +78,7 @@ Status KeystoreService::importKey(uint8_t keySlotId, types::Algorithm algorithm,
   return Status(types::StatusCode::OK);
 }
 
-Status KeystoreService::deleteKey(uint8_t keySlotId) {
+types::Status KeystoreService::deleteKey(uint8_t keySlotId) {
   if (!isInitialized_) {
     return Status(types::StatusCode::ERR_NOT_INITIALIZED);
   }
@@ -97,7 +97,7 @@ Status KeystoreService::deleteKey(uint8_t keySlotId) {
   return Status(types::StatusCode::OK);
 }
 
-Status KeystoreService::getKey(uint8_t keySlotId, types::Key &key) {
+types::Status KeystoreService::getKey(uint8_t keySlotId, types::Key &key) {
   if (!isInitialized_) {
     return Status(types::StatusCode::ERR_NOT_INITIALIZED);
   }
@@ -119,7 +119,7 @@ Status KeystoreService::getKey(uint8_t keySlotId, types::Key &key) {
   return Status(types::StatusCode::OK);
 }
 
-Status KeystoreService::getSlotInfo(uint8_t keySlotId,
+types::Status KeystoreService::getSlotInfo(uint8_t keySlotId,
                                     types::KeySlotInfo &info) {
   if (!isInitialized_) {
     return Status(types::StatusCode::ERR_NOT_INITIALIZED);
@@ -133,7 +133,7 @@ Status KeystoreService::getSlotInfo(uint8_t keySlotId,
   return Status(types::StatusCode::OK);
 }
 
-Status KeystoreService::clearAll() {
+types::Status KeystoreService::clearAll() {
   if (!isInitialized_) {
     return Status(types::StatusCode::ERR_NOT_INITIALIZED);
   }

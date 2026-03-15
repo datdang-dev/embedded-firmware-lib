@@ -43,21 +43,21 @@ public:
     KeystoreService& operator=(const KeystoreService&) = delete;
 
     // IKeystoreService implementation
-    [[nodiscard]] Status init() override;
-    [[nodiscard]] Status deinit() override;
-    [[nodiscard]] Status importKey(
+    [[nodiscard]] types::Status init() override;
+    [[nodiscard]] types::Status deinit() override;
+    [[nodiscard]] types::Status importKey(
         uint8_t keySlotId,
         types::Algorithm algorithm,
         std::span<const uint8_t> keyData,
         uint8_t permissions) override;
-    [[nodiscard]] Status deleteKey(uint8_t keySlotId) override;
-    [[nodiscard]] Status getKey(
+    [[nodiscard]] types::Status deleteKey(uint8_t keySlotId) override;
+    [[nodiscard]] types::Status getKey(
         uint8_t keySlotId,
         types::Key& key) override;
-    [[nodiscard]] Status getSlotInfo(
+    [[nodiscard]] types::Status getSlotInfo(
         uint8_t keySlotId,
         types::KeySlotInfo& info) override;
-    [[nodiscard]] Status clearAll() override;
+    [[nodiscard]] types::Status clearAll() override;
     [[nodiscard]] bool isSlotOccupied(uint8_t keySlotId) const override;
 
 private:

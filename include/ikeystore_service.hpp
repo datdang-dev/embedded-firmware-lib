@@ -31,13 +31,13 @@ public:
      * @brief Initialize the keystore.
      * @return Status::OK on success, error code otherwise.
      */
-    [[nodiscard]] virtual Status init() = 0;
+    [[nodiscard]] virtual types::Status init() = 0;
 
     /**
      * @brief Deinitialize the keystore.
      * @return Status::OK on success, error code otherwise.
      */
-    [[nodiscard]] virtual Status deinit() = 0;
+    [[nodiscard]] virtual types::Status deinit() = 0;
 
     /**
      * @brief Import a key into a key slot.
@@ -47,7 +47,7 @@ public:
      * @param[in] permissions Access permission flags.
      * @return Status::OK on success, error code otherwise.
      */
-    [[nodiscard]] virtual Status importKey(
+    [[nodiscard]] virtual types::Status importKey(
         uint8_t keySlotId,
         types::Algorithm algorithm,
         std::span<const uint8_t> keyData,
@@ -58,7 +58,7 @@ public:
      * @param[in] keySlotId Slot ID to clear.
      * @return Status::OK on success, error code otherwise.
      */
-    [[nodiscard]] virtual Status deleteKey(uint8_t keySlotId) = 0;
+    [[nodiscard]] virtual types::Status deleteKey(uint8_t keySlotId) = 0;
 
     /**
      * @brief Get a key from a slot (for crypto operations).
@@ -66,7 +66,7 @@ public:
      * @param[out] key Reference to store key data.
      * @return Status::OK on success, error code otherwise.
      */
-    [[nodiscard]] virtual Status getKey(
+    [[nodiscard]] virtual types::Status getKey(
         uint8_t keySlotId,
         types::Key& key) = 0;
 
@@ -76,7 +76,7 @@ public:
      * @param[out] info Reference to store slot info.
      * @return Status::OK on success, error code otherwise.
      */
-    [[nodiscard]] virtual Status getSlotInfo(
+    [[nodiscard]] virtual types::Status getSlotInfo(
         uint8_t keySlotId,
         types::KeySlotInfo& info) = 0;
 
@@ -84,7 +84,7 @@ public:
      * @brief Clear all keys from the keystore.
      * @return Status::OK on success, error code otherwise.
      */
-    [[nodiscard]] virtual Status clearAll() = 0;
+    [[nodiscard]] virtual types::Status clearAll() = 0;
 
     /**
      * @brief Check if a key slot is occupied.
