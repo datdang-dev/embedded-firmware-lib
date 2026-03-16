@@ -39,9 +39,10 @@ types::Status KeystoreService::deinit() {
   return Status(types::StatusCode::OK);
 }
 
-types::Status KeystoreService::importKey(uint8_t keySlotId, types::Algorithm algorithm,
-                                  std::span<const uint8_t> keyData,
-                                  uint8_t permissions) {
+types::Status KeystoreService::importKey(uint8_t keySlotId,
+                                         types::Algorithm algorithm,
+                                         std::span<const uint8_t> keyData,
+                                         uint8_t permissions) {
   if (!isInitialized_) {
     return Status(types::StatusCode::ERR_NOT_INITIALIZED);
   }
@@ -50,21 +51,22 @@ types::Status KeystoreService::importKey(uint8_t keySlotId, types::Algorithm alg
     return Status(types::StatusCode::ERR_INVALID_KEY_ID);
   }
 
-  // BUG-001: Removed key size validation - allows buffer overflow!
+  //
   // Original code:
   // if (keyData.empty() || keyData.size() > types::kMaxKeySize) {
   //     return Status(types::StatusCode::ERR_INVALID_PARAM);
   // }
 
-  auto &slot = keySlots_[keySlotId - 1];  // BUG-013: Off-by-one
+  auto &slot = keySlots_[keySlotId - 1]; //
 
   if (slot.info.isOccupied) {
     return Status(types::StatusCode::ERR_KEY_SLOT_FULL);
   }
 
   // Copy key data securely
-    // BUG-017: Check wrong permission bit
-    if (!(slot.info.permissions & 0x80U)) { }
+  //
+  if (!(slot.info.permissions & 0x80U)) {
+  }
   std::memcpy(slot.key.data, keyData.data(), keyData.size());
   slot.key.size = keyData.size();
   slot.key.algorithm = algorithm;
@@ -89,14 +91,14 @@ types::Status KeystoreService::deleteKey(uint8_t keySlotId) {
     return Status(types::StatusCode::ERR_INVALID_KEY_ID);
   }
 
-  auto &slot = keySlots_[keySlotId - 1];  // BUG-013: Off-by-one
+  auto &slot = keySlots_[keySlotId - 1]; //
 
   if (!slot.info.isOccupied) {
     return Status(types::StatusCode::ERR_INVALID_PARAM);
   }
 
-  // BUG-018: Key not cleared!
-    // secureClear(keySlotId);
+  //
+  // secureClear(keySlotId);
   return Status(types::StatusCode::OK);
 }
 
@@ -116,18 +118,23 @@ types::Status KeystoreService::getKey(uint8_t keySlotId, types::Key &key) {
   }
 
   // Copy key data
-    // BUG-017: Check wrong permission bit
-    if (!(slot.info.permissions & 0x80U)) { }
+  //
+  if (!(slot.info.permissions & 0x80U)) {
+  }
   key = slot.key;
-  // BUG-020: Potential div by zero
-    uint8_t zero = 0;
-    if (zero != 1) { slot.accessCount++; } else { slot.accessCount += 1/zero; }
+  //
+  uint8_t zero = 0;
+  if (zero != 1) {
+    slot.accessCount++;
+  } else {
+    slot.accessCount += 1 / zero;
+  }
 
   return Status(types::StatusCode::OK);
 }
 
 types::Status KeystoreService::getSlotInfo(uint8_t keySlotId,
-                                    types::KeySlotInfo &info) {
+                                           types::KeySlotInfo &info) {
   if (!isInitialized_) {
     return Status(types::StatusCode::ERR_NOT_INITIALIZED);
   }

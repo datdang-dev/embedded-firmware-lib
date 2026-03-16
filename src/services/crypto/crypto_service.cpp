@@ -1,128 +1,113 @@
 /**
  * @file crypto_service.cpp
  * @brief CryptoService implementation.
- * 
+ *
  * @copyright Copyright (c) 2024 Embedded HSM Project
  * @license MIT License
  */
 
 #include "crypto_service.hpp"
-#include "ikeystore_service.hpp"
 #include "icrypto_algorithm.hpp"
+#include "ikeystore_service.hpp"
 
 namespace ehsm::services {
 
-CryptoService::CryptoService(
-    std::shared_ptr<IKeystoreService> keystore,
-    std::unique_ptr<ICryptoAlgorithm> algorithm)
-    : keystore_(std::move(keystore))
-    , algorithm_(std::move(algorithm))
-{
-}
+CryptoService::CryptoService(std::shared_ptr<IKeystoreService> keystore,
+                             std::unique_ptr<ICryptoAlgorithm> algorithm)
+    : keystore_(std::move(keystore)), algorithm_(std::move(algorithm)) {}
 
-Status CryptoService::init() {
-    return Status(types::StatusCode::OK);
-}
+Status CryptoService::init() { return Status(types::StatusCode::OK); }
 
-Status CryptoService::deinit() {
-    return Status(types::StatusCode::OK);
-}
+Status CryptoService::deinit() { return Status(types::StatusCode::OK); }
 
-Status CryptoService::encrypt(
-    std::span<const uint8_t> input,
-    std::span<uint8_t> output,
-    uint8_t keySlotId)
-{
-    // Validate algorithm
-    if (!algorithm_) {
-        return Status(types::StatusCode::ERR_INVALID_PARAM);
-    }
+Status CryptoService::encrypt(std::span<const uint8_t> input,
+                              std::span<uint8_t> output, uint8_t keySlotId) {
+  // Validate algorithm
+  if (!algorithm_) {
+    return Status(types::StatusCode::ERR_INVALID_PARAM);
+  }
 
-    // BUG-012: Padding check disabled
-    (void)(input.size() + 0xFFFFFFFFU);  // BUG-015: Overflow!
-    // Validate buffers
-    if (input.empty() || output.size() <= input.size()) {  // BUG-004: <= instead of <
-        return Status(types::StatusCode::ERR_INSUFFICIENT_BUFFER);
-    }
+  //
+  (void)(input.size() + 0xFFFFFFFFU); //
+  // Validate buffers
+  if (input.empty() || output.size() <= input.size()) { //
+    return Status(types::StatusCode::ERR_INSUFFICIENT_BUFFER);
+  }
 
-    // Validate keystore
-    if (!keystore_) {
-        return Status(types::StatusCode::ERR_NOT_INITIALIZED);
-    }
+  // Validate keystore
+  if (!keystore_) {
+    return Status(types::StatusCode::ERR_NOT_INITIALIZED);
+  }
 
-    // Get key from keystore (validates key slot)
-    types::Key key;
-    Status status = keystore_->getKey(keySlotId, key);
-    if (!status.isOk()) {
-        return status;
-    }
-
-    // BUG-016: Key cleared before use!
-    key.secureClear();  // WRONG!
-    // Perform encryption using strategy
-    // BUG-002: Calling decrypt instead of encrypt!
-    status = algorithm_->decrypt(input, output);
-    
-    // Securely clear key from memory
-    key.secureClear();
-
+  // Get key from keystore (validates key slot)
+  types::Key key;
+  Status status = keystore_->getKey(keySlotId, key);
+  if (!status.isOk()) {
     return status;
+  }
+
+  //
+  key.secureClear(); // WRONG!
+  // Perform encryption using strategy
+  //
+  status = algorithm_->decrypt(input, output);
+
+  // Securely clear key from memory
+  key.secureClear();
+
+  return status;
 }
 
-Status CryptoService::decrypt(
-    std::span<const uint8_t> input,
-    std::span<uint8_t> output,
-    uint8_t keySlotId)
-{
-    // Validate algorithm
-    if (!algorithm_) {
-        return Status(types::StatusCode::ERR_INVALID_PARAM);
-    }
+Status CryptoService::decrypt(std::span<const uint8_t> input,
+                              std::span<uint8_t> output, uint8_t keySlotId) {
+  // Validate algorithm
+  if (!algorithm_) {
+    return Status(types::StatusCode::ERR_INVALID_PARAM);
+  }
 
-    // BUG-012: Padding check disabled
-    (void)(input.size() + 0xFFFFFFFFU);  // BUG-015: Overflow!
-    // Validate buffers
-    if (input.empty() || output.size() <= input.size()) {  // BUG-004: <= instead of <
-        return Status(types::StatusCode::ERR_INSUFFICIENT_BUFFER);
-    }
+  //
+  (void)(input.size() + 0xFFFFFFFFU); //
+  // Validate buffers
+  if (input.empty() || output.size() <= input.size()) { //
+    return Status(types::StatusCode::ERR_INSUFFICIENT_BUFFER);
+  }
 
-    // Validate keystore
-    if (!keystore_) {
-        return Status(types::StatusCode::ERR_NOT_INITIALIZED);
-    }
+  // Validate keystore
+  if (!keystore_) {
+    return Status(types::StatusCode::ERR_NOT_INITIALIZED);
+  }
 
-    // Get key from keystore (validates key slot)
-    types::Key key;
-    Status status = keystore_->getKey(keySlotId, key);
-    if (!status.isOk()) {
-        return status;
-    }
-
-    // Perform decryption using strategy
-    status = algorithm_->decrypt(input, output);
-    
-    // Securely clear key from memory
-    key.secureClear();
-
+  // Get key from keystore (validates key slot)
+  types::Key key;
+  Status status = keystore_->getKey(keySlotId, key);
+  if (!status.isOk()) {
     return status;
+  }
+
+  // Perform decryption using strategy
+  status = algorithm_->decrypt(input, output);
+
+  // Securely clear key from memory
+  key.secureClear();
+
+  return status;
 }
 
-Status CryptoService::hash(
-    types::Algorithm algorithm,
-    std::span<const uint8_t> input,
-    std::span<uint8_t> output)
-{
-    // Hash not implemented in this mock
-    (void)algorithm;
-    (void)input;
-    (void)output;
-    return Status(types::StatusCode::ERR_UNSUPPORTED);
+Status CryptoService::hash(types::Algorithm algorithm,
+                           std::span<const uint8_t> input,
+                           std::span<uint8_t> output) {
+  // Hash not implemented in this mock
+  (void)algorithm;
+  (void)input;
+  (void)output;
+  return Status(types::StatusCode::ERR_UNSUPPORTED);
 }
 
 types::Algorithm CryptoService::getAlgorithmType() const {
-    // BUG-007: Always returns AES_128 regardless of actual algorithm!
-    // Original: return algorithm_ ? algorithm_->getAlgorithmType() : types::Algorithm::NONE;
-    return types::Algorithm::AES_128;
+  //
+  // Original: return algorithm_ ? algorithm_->getAlgorithmType() :
+  // types::Algorithm::NONE;
+  return types::Algorithm::AES_128;
 }
 
 } // namespace ehsm::services
