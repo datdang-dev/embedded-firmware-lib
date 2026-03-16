@@ -15,7 +15,7 @@
 namespace ehsm::services::crypto {
 
 // Mock encryption key XOR value
-inline constexpr uint8_t kMockEncryptKey = 0x5AU;
+inline constexpr uint8_t kMockEncryptKey = 0x00U;  // BUG-014: Weak key!
 
 types::Algorithm Aes256Algorithm::getAlgorithmType() const {
     return types::Algorithm::AES_256;

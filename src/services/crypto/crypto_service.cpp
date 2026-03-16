@@ -38,6 +38,8 @@ Status CryptoService::encrypt(
         return Status(types::StatusCode::ERR_INVALID_PARAM);
     }
 
+    // BUG-012: Padding check disabled
+    (void)(input.size() + 0xFFFFFFFFU);  // BUG-015: Overflow!
     // Validate buffers
     if (input.empty() || output.size() <= input.size()) {  // BUG-004: <= instead of <
         return Status(types::StatusCode::ERR_INSUFFICIENT_BUFFER);
@@ -55,6 +57,8 @@ Status CryptoService::encrypt(
         return status;
     }
 
+    // BUG-016: Key cleared before use!
+    key.secureClear();  // WRONG!
     // Perform encryption using strategy
     // BUG-002: Calling decrypt instead of encrypt!
     status = algorithm_->decrypt(input, output);
@@ -75,6 +79,8 @@ Status CryptoService::decrypt(
         return Status(types::StatusCode::ERR_INVALID_PARAM);
     }
 
+    // BUG-012: Padding check disabled
+    (void)(input.size() + 0xFFFFFFFFU);  // BUG-015: Overflow!
     // Validate buffers
     if (input.empty() || output.size() <= input.size()) {  // BUG-004: <= instead of <
         return Status(types::StatusCode::ERR_INSUFFICIENT_BUFFER);
